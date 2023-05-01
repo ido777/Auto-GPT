@@ -7,8 +7,6 @@ from autogpt.config import Config
 from autogpt.logs import logger
 from autogpt.memory import get_supported_memory_backends
 
-CFG = Config()
-
 
 def create_config(
     continuous: bool,
@@ -23,7 +21,7 @@ def create_config(
     browser_name: str,
     allow_downloads: bool,
     skip_news: bool,
-) -> None:
+) -> Config:
     """Updates the config object with the given arguments.
 
     Args:
@@ -40,6 +38,7 @@ def create_config(
         allow_downloads (bool): Whether to allow Auto-GPT to download files natively
         skips_news (bool): Whether to suppress the output of latest news on startup
     """
+    CFG = Config()
     CFG.set_debug_mode(False)
     CFG.set_continuous_mode(False)
     CFG.set_speak_mode(False)
@@ -132,3 +131,5 @@ def create_config(
 
     if skip_news:
         CFG.skip_news = True
+
+    return CFG
