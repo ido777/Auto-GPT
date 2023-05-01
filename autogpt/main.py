@@ -18,69 +18,26 @@ from autogpt.workspace import Workspace
 from scripts.install_plugin_deps import install_plugin_dependencies
 
 
-def run_auto_gpt(
-    continuous: bool,
-    continuous_limit: int,
-    ai_settings: str,
-    skip_reprompt: bool,
-    speak: bool,
-    debug: bool,
-    gpt3only: bool,
-    gpt4only: bool,
-    memory_type: str,
-    browser_name: str,
-    allow_downloads: bool,
-    skip_news: bool,
-    workspace_directory: str,
-    install_plugin_deps: bool,
-):
-    # Configure logging before we do anything else.
-    logger.set_level(logging.DEBUG if debug else logging.INFO)
-    logger.speak_mode = speak
+def update_config(cfg: Config, **kwargs):
+    # Update cfg with the provided kwargs
+    for key, value in kwargs.items():
+        setattr(cfg, key, value)
 
-    cfg = Config()
-    # TODO: fill in llm values here
-    check_openai_api_key()
+    # Call create_config with the updated configuration
     create_config(
-        continuous,
-        continuous_limit,
-        ai_settings,
-        skip_reprompt,
-        speak,
-        debug,
-        gpt3only,
-        gpt4only,
-        memory_type,
-        browser_name,
-        allow_downloads,
-        skip_news,
+        cfg.continuous,
+        cfg.continuous_limit,
+        cfg.ai_settings,
+        cfg.skip_reprompt,
+        cfg.speak,
+        cfg.debug,
+        cfg.gpt3only,
+        cfg.gpt4only,
+        cfg.memory_type,
+        cfg.browser_name,
+        cfg.allow_downloads,
+        cfg.skip_news,
     )
-
-    if not cfg.skip_news:
-        motd = get_latest_bulletin()
-        if motd:
-            logger.typewriter_log("NEWS: ", Fore.GREEN, motd)
-        git_branch = get_current_git_branch()
-        if git_branch and git_branch != "stable":
-            logger.typewriter_log(
-                "WARNING: ",
-                Fore.RED,
-                f"You are running on `{git_branch}` branch "
-                "- this is not a supported branch.",
-            )
-        if sys.version_info < (3, 10):
-            logger.typewriter_log(
-                "WARNING: ",
-                Fore.RED,
-                "You are running on an older version of Python. "
-                "Some people have observed problems with certain "
-                "parts of Auto-GPT with this version. "
-                "Please consider upgrading to Python 3.10 or higher.",
-            )
-
-    if install_plugin_deps:
-        install_plugin_dependencies()
-
     # TODO: have this directory live outside the repository (e.g. in a user's
     #   home directory) and have it come in as a command line argument or part of
     #   the env file.
@@ -102,20 +59,63 @@ def run_auto_gpt(
     cfg.file_logger_path = str(file_logger_path)
 
     cfg.set_plugins(scan_plugins(cfg, cfg.debug_mode))
+    return cfg
+
+
+def collect_news():
+    motd = get_latest_bulletin()
+    if motd:
+        logger.typewriter_log("NEWS: ", Fore.GREEN, motd)
+    git_branch = get_current_git_branch()
+    if git_branch and git_branch != "stable":
+        logger.typewriter_log(
+            "WARNING: ",
+            Fore.RED,
+            f"You are running on `{git_branch}` branch "
+            "- this is not a supported branch.",
+        )
+    if sys.version_info < (3, 10):
+        logger.typewriter_log(
+            "WARNING: ",
+            Fore.RED,
+            "You are running on an older version of Python. "
+            "Some people have observed problems with certain "
+            "parts of Auto-GPT with this version. "
+            "Please consider upgrading to Python 3.10 or higher.",
+        )
+
+
+def run_auto_gpt(**user_config):
+    cfg = update_config(Config(), **user_config)
+    # Configure logging before we do anything else.
+    logger.set_level(logging.DEBUG if debug else logging.INFO)
+    logger.speak_mode = speak
+
+    # TODO: fill in llm values here
+    check_openai_api_key()
+
+    if not cfg.skip_news:
+        collect_news()
+
+    if install_plugin_deps:
+        install_plugin_dependencies()
+
     # Create a CommandRegistry instance and scan default folder
-    command_registry = CommandRegistry()
-    command_registry.import_commands("autogpt.commands.analyze_code")
-    command_registry.import_commands("autogpt.commands.audio_text")
-    command_registry.import_commands("autogpt.commands.execute_code")
-    command_registry.import_commands("autogpt.commands.file_operations")
-    command_registry.import_commands("autogpt.commands.git_operations")
-    command_registry.import_commands("autogpt.commands.google_search")
-    command_registry.import_commands("autogpt.commands.image_gen")
-    command_registry.import_commands("autogpt.commands.improve_code")
-    command_registry.import_commands("autogpt.commands.twitter")
-    command_registry.import_commands("autogpt.commands.web_selenium")
-    command_registry.import_commands("autogpt.commands.write_tests")
-    command_registry.import_commands("autogpt.app")
+    command_list = [
+        "autogpt.commands.analyze_code",
+        "autogpt.commands.audio_text",
+        "autogpt.commands.execute_code",
+        "autogpt.commands.file_operations",
+        "autogpt.commands.git_operations",
+        "autogpt.commands.google_search",
+        "autogpt.commands.image_gen",
+        "autogpt.commands.improve_code",
+        "autogpt.commands.twitter",
+        "autogpt.commands.web_selenium",
+        "autogpt.commands.write_tests",
+        "autogpt.app",
+    ]
+    command_registry = CommandRegistry(command_list)
 
     ai_name = ""
     ai_config = construct_main_ai_config()
@@ -152,6 +152,6 @@ def run_auto_gpt(
         config=ai_config,
         system_prompt=system_prompt,
         triggering_prompt=DEFAULT_TRIGGERING_PROMPT,
-        workspace_directory=workspace_directory,
+        workspace_directory=Path(cfg.workspace_path),
     )
     agent.start_interaction_loop()
