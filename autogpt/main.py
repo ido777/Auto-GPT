@@ -19,6 +19,8 @@ from scripts.install_plugin_deps import install_plugin_dependencies
 
 
 def update_config(cfg: Config, **kwargs):
+    workspace_directory = None
+    file_logger_path = None
     # Update cfg with the provided kwargs
     for key, value in kwargs.items():
         setattr(cfg, key, value)
@@ -88,8 +90,8 @@ def collect_news():
 def run_auto_gpt(**user_config):
     cfg = update_config(Config(), **user_config)
     # Configure logging before we do anything else.
-    logger.set_level(logging.DEBUG if debug else logging.INFO)
-    logger.speak_mode = speak
+    logger.set_level(logging.DEBUG if cfg.debug else logging.INFO)
+    logger.speak_mode = cfg.speak
 
     # TODO: fill in llm values here
     check_openai_api_key()
@@ -97,7 +99,7 @@ def run_auto_gpt(**user_config):
     if not cfg.skip_news:
         collect_news()
 
-    if install_plugin_deps:
+    if cfg.install_plugin_deps:
         install_plugin_dependencies()
 
     # Create a CommandRegistry instance and scan default folder

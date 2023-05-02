@@ -88,20 +88,20 @@ def main(
 
     if ctx.invoked_subcommand is None:
         run_auto_gpt(
-            continuous,
-            continuous_limit,
-            ai_settings,
-            skip_reprompt,
-            speak,
-            debug,
-            gpt3only,
-            gpt4only,
-            memory_type,
-            browser_name,
-            allow_downloads,
-            skip_news,
-            workspace_directory,
-            install_plugin_deps,
+            continuous=continuous,
+            continuous_limit=continuous_limit,
+            ai_settings=ai_settings,
+            skip_reprompt=skip_reprompt,
+            speak=speak,
+            debug=debug,
+            gpt3only=gpt3only,
+            gpt4only=gpt4only,
+            memory_type=memory_type,
+            browser_name=browser_name,
+            allow_downloads=allow_downloads,
+            skip_news=skip_news,
+            workspace_directory=workspace_directory,
+            install_plugin_deps=install_plugin_deps,
         )
 
 
