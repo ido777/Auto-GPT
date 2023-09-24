@@ -1,12 +1,26 @@
 name: Benchmark CI
 
 on:
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: 'Branch to run on'
+        required: true
+        default: 'workflow1'     
+      agents:
+        description: 'Agents to run (comma-separated)'
+        required: false
+        # default: 'gpt-engineer,smol-developer,Auto-GPT,mini-agi,beebot,babyagi,PolyGPT,Auto-GPT-Turbo' # Default agents if none are specified
+        default: 'gpt-engineer,smol-developer,Auto-GPT,mini-agi,beebot,babyagi,PolyGPT,Auto-GPT-Turbo' # Default agents if none are specified
+  # schedule:
+  #   - cron: '0 8 * * *'
   push:
     branches: [master, ci-test*]
     paths:
       - 'benchmark/**'
       - .github/workflows/benchmark-ci.yml
       - '!benchmark/reports/**'
+
   pull_request:
     branches: [stable, master, release-*]
     paths:
