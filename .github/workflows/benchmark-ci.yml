@@ -7,12 +7,12 @@ on:
       branch:
         description: 'Branch to run on'
         required: true
-        default: 'workflow1'     
+        default: 'ci-test1'     
       agents:
         description: 'Agents to run (comma-separated)'
         required: true
         # default: 'gpt-engineer,smol-developer,Auto-GPT,mini-agi,beebot,babyagi,PolyGPT,Auto-GPT-Turbo' # Default agents if none are specified
-        default: 'gpt-engineer,smol-developer,Auto-GPT,mini-agi,beebot,babyagi,PolyGPT,Auto-GPT-Turbo' # Default agents if none are specified
+        default: 'gpt-engineer,beebot,babyagi,PolyGPT' # Default agents if none are specified
   # schedule:
   #   - cron: '0 8 * * *'
   push:
