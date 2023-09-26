@@ -9,7 +9,7 @@ on:
         default: 'workflow1'     
       agents:
         description: 'Agents to run (comma-separated)'
-        required: false
+        required: true
         # default: 'gpt-engineer,smol-developer,Auto-GPT,mini-agi,beebot,babyagi,PolyGPT,Auto-GPT-Turbo' # Default agents if none are specified
         default: 'gpt-engineer,smol-developer,Auto-GPT,mini-agi,beebot,babyagi,PolyGPT,Auto-GPT-Turbo' # Default agents if none are specified
   # schedule:
